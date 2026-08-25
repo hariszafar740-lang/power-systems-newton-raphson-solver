@@ -1,8 +1,9 @@
 import numpy as np
 from src.ybus_builder import build_ybus
+from src.bus_data import get_3bus_data
+from src.mismatch_calculator import calculate_power_mismatches
 
 def main():
-    # Standard 3-Bus Test System Data (p.u. impedance)
     num_buses = 3
     line_data = [
         {'from_bus': 1, 'to_bus': 2, 'r': 0.02, 'x': 0.06, 'b': 0.06},
@@ -11,17 +12,22 @@ def main():
     ]
     
     Y_bus = build_ybus(num_buses, line_data)
+    bus_types, V, theta, P_spec, Q_spec = get_3bus_data()
+    
+    P_calc, Q_calc, delta_P, delta_Q = calculate_power_mismatches(
+        V, theta, Y_bus, P_spec, Q_spec, bus_types
+    )
     
     print("=" * 60)
-    print("POWER SYSTEMS ANALYSIS: BUS ADMITTANCE MATRIX (Y_bus)")
+    print("DAY 4: INITIAL POWER MISMATCH EVALUATION (ITERATION 0)")
     print("=" * 60)
-    print(f"Buses: {num_buses} | Transmission Lines: {len(line_data)}\n")
-    
-    print("Complex Y_bus Matrix (p.u.):\n")
-    for row in Y_bus:
-        formatted_row = "  ".join([f"{val.real:+.3f}{val.imag:+.3f}j" for val in row])
-        print(f"[{formatted_row}]")
-    print("\n" + "=" * 60)
+    print(f"Bus Types: {bus_types}")
+    print(f"Calculated Real Power P_calc (p.u.): {np.round(P_calc, 4)}")
+    print(f"Calculated Reactive Power Q_calc (p.u.): {np.round(Q_calc, 4)}")
+    print("-" * 60)
+    print(f"Active Power Mismatch Vector Delta P (p.u.): {np.round(delta_P, 4)}")
+    print(f"Reactive Power Mismatch Vector Delta Q (p.u.): {np.round(delta_Q, 4)}")
+    print("=" * 60)
 
 if __name__ == "__main__":
     main()
