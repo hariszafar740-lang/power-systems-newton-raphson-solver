@@ -3,6 +3,7 @@ from src.ybus_builder import build_ybus
 from src.bus_data import get_3bus_data
 from src.nr_solver import solve_newton_raphson
 from src.line_flow_calculator import calculate_line_flows
+from src.visualizer import plot_convergence, plot_voltage_profile
 
 def main():
     num_buses = 3
@@ -21,8 +22,12 @@ def main():
     
     flows, total_p_loss, total_q_loss = calculate_line_flows(V_conv, theta_conv, line_data)
     
+    # Save Visual Artifacts
+    plot_convergence(history)
+    plot_voltage_profile(V_conv, bus_types)
+    
     print("=" * 65)
-    print("DAY 6: COMPLETE CONVERGED NEWTON-RAPHSON LOAD FLOW RESULTS")
+    print("NEWTON-RAPHSON LOAD FLOW SOLVER (ENHANCED PIPELINE)")
     print("=" * 65)
     print("Bus Voltage Profiles:")
     for i in range(num_buses):
@@ -30,13 +35,8 @@ def main():
         print(f"  Bus {i+1} ({bus_types[i]:5s}): |V| = {V_conv[i]:.4f} p.u. | Theta = {deg:+.4f} deg")
         
     print("-" * 65)
-    print("Transmission Line Flows & Losses:")
-    for f in flows:
-        print(f"  Line {f['from']}->{f['to']}: P_ij = {f['P_ij']:+.4f} p.u., Q_ij = {f['Q_ij']:+.4f} p.u. | Loss = {f['P_loss']:.4f} + j{f['Q_loss']:.4f} p.u.")
-        
-    print("-" * 65)
-    print(f"Total System Active Losses (P_loss):   {total_p_loss:.4f} p.u.")
-    print(f"Total System Reactive Losses (Q_loss): {total_q_loss:.4f} p.u.")
+    print(f"Total Active Losses: {total_p_loss:.4f} p.u. | Total Reactive Losses: {total_q_loss:.4f} p.u.")
+    print("Visual artifacts saved to: /results/convergence_curve.png & /results/voltage_profile.png")
     print("=" * 65)
 
 if __name__ == "__main__":
