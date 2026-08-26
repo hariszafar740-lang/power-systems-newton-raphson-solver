@@ -1,8 +1,8 @@
 import numpy as np
 from src.ybus_builder import build_ybus
 from src.bus_data import get_3bus_data
-from src.mismatch_calculator import calculate_power_mismatches
-from src.jacobian_builder import build_jacobian
+from src.nr_solver import solve_newton_raphson
+from src.line_flow_calculator import calculate_line_flows
 
 def main():
     num_buses = 3
@@ -13,28 +13,31 @@ def main():
     ]
     
     Y_bus = build_ybus(num_buses, line_data)
-    bus_types, V, theta, P_spec, Q_spec = get_3bus_data()
+    bus_types, V_init, theta_init, P_spec, Q_spec = get_3bus_data()
     
-    _, _, delta_P, delta_Q = calculate_power_mismatches(
-        V, theta, Y_bus, P_spec, Q_spec, bus_types
+    V_conv, theta_conv, history = solve_newton_raphson(
+        V_init, theta_init, Y_bus, P_spec, Q_spec, bus_types, max_iter=20, tol=1e-4
     )
     
-    mismatch_vector = np.concatenate([delta_P, delta_Q])
-    J = build_jacobian(V, theta, Y_bus, bus_types)
+    flows, total_p_loss, total_q_loss = calculate_line_flows(V_conv, theta_conv, line_data)
     
-    # Solve linear system J * delta_x = mismatch_vector
-    delta_x = np.linalg.solve(J, mismatch_vector)
-    
-    print("=" * 60)
-    print("DAY 5: JACOBIAN MATRIX & CORRECTION VECTOR (ITERATION 0)")
-    print("=" * 60)
-    print("3x3 Jacobian Matrix J:\n")
-    for row in J:
-        print("  ".join([f"{val:+8.4f}" for val in row]))
-    print("-" * 60)
-    print(f"Mismatch Vector [Delta P, Delta Q]^T (p.u.): {np.round(mismatch_vector, 4)}")
-    print(f"Correction Vector [Delta Theta_2, Delta Theta_3, Delta |V_3|]^T: {np.round(delta_x, 4)}")
-    print("=" * 60)
+    print("=" * 65)
+    print("DAY 6: COMPLETE CONVERGED NEWTON-RAPHSON LOAD FLOW RESULTS")
+    print("=" * 65)
+    print("Bus Voltage Profiles:")
+    for i in range(num_buses):
+        deg = np.degrees(theta_conv[i])
+        print(f"  Bus {i+1} ({bus_types[i]:5s}): |V| = {V_conv[i]:.4f} p.u. | Theta = {deg:+.4f} deg")
+        
+    print("-" * 65)
+    print("Transmission Line Flows & Losses:")
+    for f in flows:
+        print(f"  Line {f['from']}->{f['to']}: P_ij = {f['P_ij']:+.4f} p.u., Q_ij = {f['Q_ij']:+.4f} p.u. | Loss = {f['P_loss']:.4f} + j{f['Q_loss']:.4f} p.u.")
+        
+    print("-" * 65)
+    print(f"Total System Active Losses (P_loss):   {total_p_loss:.4f} p.u.")
+    print(f"Total System Reactive Losses (Q_loss): {total_q_loss:.4f} p.u.")
+    print("=" * 65)
 
 if __name__ == "__main__":
     main()
