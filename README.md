@@ -7,7 +7,7 @@
 An object-oriented Python implementation of the **Newton-Raphson Load Flow Algorithm** engineered for power grid dynamic stability and power flow calculation. Validated against standard **3-bus** and **IEEE 14-bus benchmark networks**.
 
 ## Key Features
-* **Admittance Matrix Formulation:** Automated dynamic $Y_{bus}$ matrix construction considering line resistance ($R$), reactance ($X$), and shunt susceptance ($B/2$).
+* **Admittance Matrix Formulation:** Automated $Y_{bus}$ construction for line resistance ($R$), reactance ($X$), total line charging ($B$), bus shunts, and real off-nominal transformer taps.
 * **Full Jacobian Engine:** Complete derivative evaluation across four dynamic sub-matrices ($J_{11}, J_{12}, J_{21}, J_{22}$) supporting Slack, PV, and PQ buses.
 * **Transmission Loss Analysis:** Complex power flow ($S_{ij}$) and real/reactive transmission loss calculations ($S_{loss}$).
 * **Automated Test Suite:** `pytest` verification covering $Y_{bus}$ matrix symmetry and numerical convergence.
