@@ -17,9 +17,12 @@ def solve_newton_raphson(
     """Solve a balanced AC power flow with the Newton-Raphson method.
 
     Parameters use per-unit voltage magnitudes and powers, with voltage angles
-    in radians.  ``max_iter`` is the maximum number of state corrections.  The
-    returned history starts with the flat-start mismatch and ends with the
-    mismatch of the returned voltage state.
+    in radians.  PV-bus voltage magnitudes are held at the values supplied in
+    ``V_init`` and their reactive limits are not enforced (matching the
+    default MATPOWER power-flow formulation).  ``max_iter`` is the maximum
+    number of state corrections.  The returned history starts with the
+    mismatch of the initial state and ends with the mismatch of the returned
+    voltage state.
 
     Raises
     ------

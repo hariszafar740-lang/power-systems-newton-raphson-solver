@@ -6,7 +6,6 @@ from src.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
 from src.nr_solver import solve_newton_raphson
 from src.ybus_builder import build_ybus
 
-
 THREE_BUS_LINES = [
     {"from_bus": 1, "to_bus": 2, "r": 0.02, "x": 0.06, "b": 0.06},
     {"from_bus": 1, "to_bus": 3, "r": 0.08, "x": 0.24, "b": 0.05},
