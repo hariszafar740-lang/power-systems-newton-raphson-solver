@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def get_3bus_data():
     """
     Standard 3-bus test system specifications:
