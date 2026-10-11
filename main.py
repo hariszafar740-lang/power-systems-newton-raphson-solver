@@ -1,20 +1,24 @@
 import numpy as np
-from src.ybus_builder import build_ybus
-from src.ieee14_data import get_ieee14_data
-from src.nr_solver import solve_newton_raphson
+
+from src.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
 from src.line_flow_calculator import calculate_line_flows
+from src.nr_solver import solve_newton_raphson
 from src.visualizer import plot_convergence, plot_voltage_profile
+from src.ybus_builder import build_ybus
+
 
 def main():
     num_buses, bus_types, V_init, theta_init, P_spec, Q_spec, line_data = get_ieee14_data()
     
-    Y_bus = build_ybus(num_buses, line_data)
+    Y_bus = build_ybus(num_buses, line_data, get_ieee14_bus_shunts())
     
     V_conv, theta_conv, history = solve_newton_raphson(
         V_init, theta_init, Y_bus, P_spec, Q_spec, bus_types, max_iter=20, tol=1e-4
     )
     
-    flows, total_p_loss, total_q_loss = calculate_line_flows(V_conv, theta_conv, line_data)
+    # Only the total losses are reported; per-branch flows are available
+    # from calculate_line_flows for detailed studies.
+    _flows, total_p_loss, total_q_loss = calculate_line_flows(V_conv, theta_conv, line_data)
     
     # Save Visual Artifacts
     plot_convergence(history, save_path='results/convergence_curve.png')
