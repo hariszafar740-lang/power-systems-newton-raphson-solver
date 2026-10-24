@@ -102,3 +102,58 @@ def plot_contingency_ranking(report, save_path="results/contingency_ranking.png"
     plt.tight_layout()
     plt.savefig(save_path, dpi=300)
     plt.close()
+
+
+def plot_pv_nose_curve(
+    unconstrained_res,
+    qlim_res=None,
+    bus=14,
+    save_path="results/pv_nose_curve.png",
+):
+    """Plot P-V voltage stability nose curves comparing unconstrained vs Q-limited margins."""
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+    bus_idx = int(bus) - 1
+
+    plt.figure(figsize=(8.2, 5.0))
+    plt.plot(
+        unconstrained_res.total_load_mw,
+        unconstrained_res.voltages[:, bus_idx],
+        "-",
+        color="#1f77b4",
+        linewidth=2.2,
+        label=f"Unconstrained PV (λ_max = {unconstrained_res.lambda_max:.2f}x)",
+    )
+    plt.scatter(
+        [unconstrained_res.max_load_mw],
+        [unconstrained_res.voltages[-1, bus_idx]],
+        color="#1f77b4",
+        s=55,
+        zorder=5,
+    )
+
+    if qlim_res is not None:
+        plt.plot(
+            qlim_res.total_load_mw,
+            qlim_res.voltages[:, bus_idx],
+            "-",
+            color="#d62728",
+            linewidth=2.2,
+            label=f"Enforced Q-Limits (λ_max = {qlim_res.lambda_max:.2f}x)",
+        )
+        plt.scatter(
+            [qlim_res.max_load_mw],
+            [qlim_res.voltages[-1, bus_idx]],
+            color="#d62728",
+            s=55,
+            zorder=5,
+        )
+
+    plt.axhline(y=0.95, color="gray", linestyle=":", label="0.95 p.u. Statutory Floor")
+    plt.title(f"Voltage Stability P-V Nose Curve at Bus {bus}", fontsize=12, fontweight="bold")
+    plt.xlabel("Total System Active Load (MW)", fontsize=10)
+    plt.ylabel(f"Bus {bus} Voltage Magnitude |V| (p.u.)", fontsize=10)
+    plt.grid(True, ls="--", alpha=0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300)
+    plt.close()
