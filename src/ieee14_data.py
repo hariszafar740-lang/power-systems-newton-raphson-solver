@@ -29,17 +29,11 @@ def get_ieee14_data():
         "PQ", "PQ", "PQ", "PQ",
     ]
 
-    # Voltage setpoints (p.u.): slack voltage from the bus-1 entry and PV
-    # setpoints from the generator Vg column of the MATPOWER case14 data.
-    # A flat start (zero radians) is used for the unknown angles.
     V_init = np.array(
         [1.06, 1.045, 1.01, 1.0, 1.0, 1.07, 1.0, 1.09, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     )
     theta_init = np.zeros(num_buses)
 
-    # Net scheduled injections (generation minus load, per unit on 100 MVA
-    # base), from the MATPOWER case14 bus Pd/Qd load columns and generator
-    # Pg/Qg column: bus 2 (40 MW gen - 21.7 MW load), bus 3 (0 - 94.2), etc.
     P_spec = np.array(
         [0.0, 0.183, -0.942, -0.478, -0.076, -0.112, 0.0, 0.0,
          -0.295, -0.09, -0.035, -0.061, -0.135, -0.149]
@@ -49,10 +43,6 @@ def get_ieee14_data():
          -0.166, -0.058, -0.018, -0.016, -0.058, -0.05]
     )
 
-    # Branch data: from bus, to bus, R, X, total B, and optional tap ratio.
-    # ``b`` is the TOTAL line-charging susceptance, split equally between
-    # both branch ends by ``build_ybus`` (MATPOWER convention).  A tap ratio
-    # is on the from-bus side of the branch.
     line_data = [
         {"from_bus": 1, "to_bus": 2, "r": 0.01938, "x": 0.05917, "b": 0.0528},
         {"from_bus": 1, "to_bus": 5, "r": 0.05403, "x": 0.22304, "b": 0.0492},
@@ -80,9 +70,42 @@ def get_ieee14_data():
 
 
 def get_ieee14_bus_shunts():
-    """Return IEEE 14-bus shunt admittances for ``build_ybus``.
-
-    The benchmark has a 19 MVAr (0.19 p.u. on the 100 MVA base) capacitive
-    susceptance connected at bus 9, matching the MATPOWER case14 bus data.
-    """
+    """Return IEEE 14-bus shunt admittances for ``build_ybus``."""
     return [{"bus": 9, "b": 0.19}]
+
+
+def get_ieee14_q_limits(load_multiplier=1.0):
+    """Return PV generator reactive capability limits from MATPOWER ``case14.m``.
+
+    Values are in per unit on the 100 MVA base, including local reactive load
+    ``q_load`` at PV buses 2, 3, and 6 so ``Q_gen = Q_inj + q_load``.
+    """
+    mult = float(load_multiplier)
+    if not np.isfinite(mult) or mult < 0.0:
+        raise ValueError("load_multiplier must be a finite non-negative number")
+    return {
+        2: {"q_min": -0.40, "q_max": 0.50, "q_load": 0.127 * mult},
+        3: {"q_min": 0.00, "q_max": 0.40, "q_load": 0.190 * mult},
+        6: {"q_min": -0.06, "q_max": 0.24, "q_load": 0.075 * mult},
+        8: {"q_min": -0.06, "q_max": 0.24, "q_load": 0.0},
+    }
+
+
+def scale_ieee14_loads(load_multiplier=1.0):
+    """Return ``(P_spec, Q_spec, q_limits)`` with all bus loads scaled by ``load_multiplier``."""
+    mult = float(load_multiplier)
+    if not np.isfinite(mult) or mult < 0.0:
+        raise ValueError("load_multiplier must be a finite non-negative number")
+
+    p_gen = np.array([0.0, 0.40, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    p_load = np.array(
+        [0.0, 0.217, 0.942, 0.478, 0.076, 0.112, 0.0, 0.0,
+         0.295, 0.09, 0.035, 0.061, 0.135, 0.149]
+    )
+    q_load_pq = np.array(
+        [0.0, 0.0, 0.0, -0.039, 0.016, 0.0, 0.0, 0.0,
+         0.166, 0.058, 0.018, 0.016, 0.058, 0.05]
+    )
+    p_spec = p_gen - mult * p_load
+    q_spec = -mult * q_load_pq
+    return p_spec, q_spec, get_ieee14_q_limits(mult)
