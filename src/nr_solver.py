@@ -1,6 +1,10 @@
-import numpy as np
+import warnings
 
-from src.jacobian_builder import build_jacobian
+import numpy as np
+from scipy.sparse import csc_matrix, issparse
+from scipy.sparse.linalg import MatrixRankWarning, spsolve
+
+from src.jacobian_builder import build_jacobian, build_jacobian_sparse
 from src.mismatch_calculator import calculate_power_mismatches
 
 
@@ -13,16 +17,15 @@ def solve_newton_raphson(
     bus_types,
     max_iter=20,
     tol=1e-4,
+    *,
+    sparse=False,
 ):
     """Solve a balanced AC power flow with the Newton-Raphson method.
 
     Parameters use per-unit voltage magnitudes and powers, with voltage angles
-    in radians.  PV-bus voltage magnitudes are held at the values supplied in
-    ``V_init`` and their reactive limits are not enforced (matching the
-    default MATPOWER power-flow formulation).  ``max_iter`` is the maximum
-    number of state corrections.  The returned history starts with the
-    mismatch of the initial state and ends with the mismatch of the returned
-    voltage state.
+    in radians.  When ``sparse=True`` (or when ``Y_bus`` is supplied as a
+    ``scipy.sparse`` matrix), the solver assembles a CSC sparse Jacobian and
+    solves each Newton step via sparse LU factorization (``spsolve``).
 
     Raises
     ------
@@ -35,7 +38,7 @@ def solve_newton_raphson(
     theta = np.asarray(theta_init, dtype=float).copy()
     P_spec = np.asarray(P_spec, dtype=float)
     Q_spec = np.asarray(Q_spec, dtype=float)
-    Y_bus = np.asarray(Y_bus, dtype=complex)
+    use_sparse = bool(sparse) or issparse(Y_bus)
 
     if any(values.ndim != 1 for values in (V, theta, P_spec, Q_spec)):
         raise ValueError("voltage, angle, and specified-power arrays must be one-dimensional")
@@ -44,8 +47,21 @@ def solve_newton_raphson(
         raise ValueError("the network must contain at least one bus")
     if len(theta) != num_buses or len(P_spec) != num_buses or len(Q_spec) != num_buses:
         raise ValueError("voltage, angle, and specified-power arrays must have equal length")
-    if Y_bus.shape != (num_buses, num_buses):
-        raise ValueError("Y_bus must be a square matrix matching the number of buses")
+
+    if issparse(Y_bus):
+        y_matrix = Y_bus.tocsc().astype(complex)
+        if y_matrix.shape != (num_buses, num_buses):
+            raise ValueError("Y_bus must be a square matrix matching the number of buses")
+        if not np.isfinite(y_matrix.data.real).all() or not np.isfinite(y_matrix.data.imag).all():
+            raise ValueError("Y_bus entries must be finite")
+    else:
+        y_dense = np.asarray(Y_bus, dtype=complex)
+        if y_dense.shape != (num_buses, num_buses):
+            raise ValueError("Y_bus must be a square matrix matching the number of buses")
+        if not np.isfinite(y_dense.real).all() or not np.isfinite(y_dense.imag).all():
+            raise ValueError("Y_bus entries must be finite")
+        y_matrix = csc_matrix(y_dense) if use_sparse else y_dense
+
     if len(bus_types) != num_buses:
         raise ValueError("bus_types must contain one entry for each bus")
     if any(bus_type not in ("Slack", "PV", "PQ") for bus_type in bus_types):
@@ -56,8 +72,6 @@ def solve_newton_raphson(
         raise ValueError("initial voltages and angles must be finite")
     if not np.isfinite(P_spec).all() or not np.isfinite(Q_spec).all():
         raise ValueError("specified powers must be finite")
-    if not np.isfinite(Y_bus.real).all() or not np.isfinite(Y_bus.imag).all():
-        raise ValueError("Y_bus entries must be finite")
     if np.any(V <= 0.0):
         raise ValueError("initial voltage magnitudes must be positive")
     if not isinstance(max_iter, (int, np.integer)) or max_iter < 0:
@@ -72,7 +86,7 @@ def solve_newton_raphson(
 
     for iteration in range(max_iter + 1):
         _, _, delta_P, delta_Q = calculate_power_mismatches(
-            V, theta, Y_bus, P_spec, Q_spec, bus_types
+            V, theta, y_matrix, P_spec, Q_spec, bus_types
         )
         mismatch_vector = np.concatenate([delta_P, delta_Q])
         max_error = (
@@ -85,17 +99,26 @@ def solve_newton_raphson(
         if iteration == max_iter:
             break
 
-        jacobian = build_jacobian(V, theta, Y_bus, bus_types)
-        try:
-            state_change = np.linalg.solve(jacobian, mismatch_vector)
-        except np.linalg.LinAlgError as error:
-            raise RuntimeError("Newton-Raphson Jacobian is singular") from error
+        if use_sparse:
+            jacobian = build_jacobian_sparse(V, theta, y_matrix, bus_types)
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", MatrixRankWarning)
+                try:
+                    state_change = np.atleast_1d(
+                        np.asarray(spsolve(jacobian, mismatch_vector), dtype=float)
+                    )
+                except (RuntimeError, np.linalg.LinAlgError, MatrixRankWarning) as error:
+                    raise RuntimeError("Newton-Raphson Jacobian is singular") from error
+        else:
+            jacobian = build_jacobian(V, theta, y_matrix, bus_types)
+            try:
+                state_change = np.linalg.solve(jacobian, mismatch_vector)
+            except np.linalg.LinAlgError as error:
+                raise RuntimeError("Newton-Raphson Jacobian is singular") from error
 
         if not np.isfinite(state_change).all():
-            raise RuntimeError("Newton-Raphson produced a non-finite state change")
+            raise RuntimeError("Newton-Raphson Jacobian is singular or ill-conditioned")
 
-        # If a Newton step would make a PQ voltage non-positive, shorten the
-        # complete step until all voltage magnitudes remain physically valid.
         step_size = 1.0
         voltage_change = state_change[n_p:]
         while pq_buses and np.any(V[pq_buses] + step_size * voltage_change <= 0.0):
@@ -103,10 +126,8 @@ def solve_newton_raphson(
             if step_size < 1e-6:
                 raise RuntimeError("Newton-Raphson step would create a non-positive voltage")
 
-        for index, bus_index in enumerate(pv_pq_buses):
-            theta[bus_index] += step_size * state_change[index]
-        for index, bus_index in enumerate(pq_buses):
-            V[bus_index] += step_size * state_change[n_p + index]
+        theta[pv_pq_buses] += step_size * state_change[:n_p]
+        V[pq_buses] += step_size * voltage_change
 
     raise RuntimeError(
         "Newton-Raphson did not converge within "
