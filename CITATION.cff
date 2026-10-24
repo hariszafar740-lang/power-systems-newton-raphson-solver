@@ -7,19 +7,21 @@ authors:
     family-names: Zafar
     alias: hariszafar740-lang
 repository-code: "https://github.com/hariszafar740-lang/power-systems-newton-raphson-solver"
-url: "https://github.com/hariszafar740-lang/power-systems-newton-raphson-solver"
+url: "https://hariszafar740-lang.github.io/power-systems-newton-raphson-solver/"
 abstract: >-
-  Numerical Python solver for balanced AC power system load flow analysis using
-  full and sparse Jacobian Newton-Raphson methods, validated against MATPOWER
-  case14 and IEEE benchmark networks.
+  Sparse CSC Python solver for balanced AC power system load flow, PV generator
+  reactive-limit switching, automated N-1 contingency security screening, and
+  saddle-node bifurcation P-V voltage stability analysis, validated against
+  MATPOWER case14 and case_ieee30 benchmarks.
 keywords:
   - power-systems
   - load-flow
   - newton-raphson
-  - jacobian
-  - ieee-14-bus
+  - sparse-matrix
+  - contingency-analysis
+  - voltage-stability
   - matpower
   - python
 license: MIT
-version: 0.2.0
+version: 1.0.0
 date-released: "2026-10-24"
