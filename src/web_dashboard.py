@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
+from src import __version__
 from src.contingency_analyzer import run_n1_contingency_analysis
 from src.ieee14_data import (
     get_ieee14_bus_shunts,
@@ -97,7 +98,7 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
     )
     _, loss_p30_s, loss_q30_s = calculate_line_flows(q30_res.V, q30_res.theta, lines30)
 
-    # 3. N-1 Contingency Security Screening (IEEE 14 with Q-limits)
+    # 3. N-1 Contingency Security Screening (IEEE 14 with Q-limits & 0.94-1.06 bounds)
     n1_rep = run_n1_contingency_analysis(
         n14,
         bt14,
@@ -108,6 +109,8 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
         lines14,
         shunts14,
         q_limits=q_lims14_base,
+        v_min=0.94,
+        v_max=1.06,
     )
 
     # 4. P-V Voltage Stability Nose Curves (IEEE 14)
@@ -131,6 +134,7 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
     )
 
     payload = {
+        "version": __version__,
         "cases": {
             "ieee14_base": {
                 "title": "IEEE 14-Bus — Nominal Base Case (1.00x Load)",
@@ -184,6 +188,14 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
                     q30_res.V, q30_res.theta, bt30, q30_res.saturated_buses
                 ),
             },
+        },
+        "contingency_summary": {
+            "total": int(n1_rep.total_contingencies),
+            "secure": int(n1_rep.secure_count),
+            "violated": int(n1_rep.violated_count),
+            "islanded": int(n1_rep.islanded_count),
+            "diverged": int(n1_rep.diverged_count),
+            "v_bounds": "0.94 - 1.06 p.u.",
         },
         "contingencies": [
             {
@@ -250,7 +262,7 @@ def _render_html(payload: dict[str, object]) -> str:
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NR Power-Flow & Grid Security Explorer | v1.0.0</title>
+  <title>NR Power-Flow & Grid Security Explorer | v__VERSION__</title>
   <style>
     :root {
       --bg: #0b1020;
@@ -386,7 +398,7 @@ def _render_html(payload: dict[str, object]) -> str:
 <body>
   <header>
     <div class="badge-row">
-      <span class="pill">nr-powerflow-solver v1.0.0</span>
+      <span class="pill">nr-powerflow-solver v__VERSION__</span>
       <span class="pill">SciPy CSC Sparse Engine</span>
       <span class="pill">MATPOWER case14 &amp; case_ieee30 Verified</span>
       <span class="pill">72 Automated Pytest Checks</span>
@@ -441,15 +453,10 @@ def _render_html(payload: dict[str, object]) -> str:
     </section>
 
     <section id="tab-contingency" class="tab-panel">
-      <div class="kpi-grid">
-        <div class="kpi"><span>Evaluated Outages</span><strong>20 Branches</strong></div>
-        <div class="kpi"><span>Secure Outages</span><strong class="tag-ok">10</strong></div>
-        <div class="kpi"><span>Voltage Violations</span><strong class="tag-warn">8</strong></div>
-        <div class="kpi"><span>Islanded / Collapsed</span><strong class="tag-crit">1 Islanded / 1 Collapse</strong></div>
-      </div>
+      <div id="n1Kpis" class="kpi-grid"></div>
       <div class="split">
         <div class="card">
-          <h3>Top Ranked N-1 Contingencies (IEEE 14-Bus with MATPOWER Q-Limits)</h3>
+          <h3>Top Ranked N-1 Contingencies (IEEE 14-Bus, 0.94&ndash;1.06 p.u., MATPOWER Q-Limits)</h3>
           <table>
             <thead>
               <tr><th>Rank</th><th>Branch</th><th>Corridor</th><th>Status</th><th>Min |V|</th><th>Q-Sat</th><th>Severity</th></tr>
@@ -547,6 +554,13 @@ def _render_html(payload: dict[str, object]) -> str:
     }
 
     function renderContingencies() {
+      const cs = DATA.contingency_summary;
+      document.getElementById("n1Kpis").innerHTML =
+        "<div class='kpi'><span>Evaluated Outages (" + cs.v_bounds + ")</span><strong>" + cs.total + " Branches</strong></div>" +
+        "<div class='kpi'><span>Secure Outages</span><strong class='tag-ok'>" + cs.secure + "</strong></div>" +
+        "<div class='kpi'><span>Limit Violations</span><strong class='tag-warn'>" + cs.violated + "</strong></div>" +
+        "<div class='kpi'><span>Islanded / Collapsed</span><strong class='tag-crit'>" + cs.islanded + " Islanded / " + cs.diverged + " Collapse</strong></div>";
+
       document.getElementById("n1TableBody").innerHTML = DATA.contingencies.map(function (c) {
         const cls = c.status === "SECURE" ? "tag-ok" : (c.status === "VIOLATION" ? "tag-warn" : "tag-crit");
         return "<tr><td>" + c.rank + "</td><td>" + c.branch + "</td><td>" + c.corridor +
@@ -604,7 +618,9 @@ def _render_html(payload: dict[str, object]) -> str:
 </body>
 </html>
 """
-    return template.replace("__DASHBOARD_JSON__", data_json)
+    return template.replace("__VERSION__", str(payload["version"])).replace(
+        "__DASHBOARD_JSON__", data_json
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
