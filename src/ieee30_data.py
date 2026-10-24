@@ -94,9 +94,32 @@ def get_ieee30_data():
 
 
 def get_ieee30_bus_shunts():
-    """Return IEEE 30-bus shunt admittances for ``build_ybus``.
-
-    Matches MATPOWER ``case_ieee30.m`` (19 MVAr at bus 10 and 4.3 MVAr at
-    bus 24 on the 100 MVA system base).
-    """
+    """Return IEEE 30-bus shunt admittances for ``build_ybus``."""
     return [{"bus": 10, "b": 0.19}, {"bus": 24, "b": 0.043}]
+
+
+def get_ieee30_q_limits(load_multiplier=1.0):
+    """Return PV generator reactive capability limits from MATPOWER ``case_ieee30.m``."""
+    mult = float(load_multiplier)
+    if not np.isfinite(mult) or mult < 0.0:
+        raise ValueError("load_multiplier must be a finite non-negative number")
+    return {
+        2: {"q_min": -0.40, "q_max": 0.50, "q_load": 0.127 * mult},
+        5: {"q_min": -0.40, "q_max": 0.40, "q_load": 0.190 * mult},
+        8: {"q_min": -0.10, "q_max": 0.40, "q_load": 0.300 * mult},
+        11: {"q_min": -0.06, "q_max": 0.24, "q_load": 0.0},
+        13: {"q_min": -0.06, "q_max": 0.24, "q_load": 0.0},
+    }
+
+
+def scale_ieee30_loads(load_multiplier=1.0):
+    """Return ``(P_spec, Q_spec, q_limits)`` with IEEE 30-bus loads scaled uniformly."""
+    mult = float(load_multiplier)
+    if not np.isfinite(mult) or mult < 0.0:
+        raise ValueError("load_multiplier must be a finite non-negative number")
+
+    _, _, _, _, p_base, q_base, _ = get_ieee30_data()
+    p_gen = np.zeros(30, dtype=float)
+    p_gen[1] = 0.40
+    p_load = p_gen - p_base
+    return p_gen - mult * p_load, mult * q_base, get_ieee30_q_limits(mult)
