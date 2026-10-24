@@ -1,8 +1,10 @@
 import numpy as np
 
+from src.contingency_analyzer import run_n1_contingency_analysis
 from src.ieee14_data import (
     get_ieee14_bus_shunts,
     get_ieee14_data,
+    get_ieee14_q_limits,
     scale_ieee14_loads,
 )
 from src.ieee30_data import get_ieee30_bus_shunts, get_ieee30_data
@@ -16,7 +18,8 @@ from src.ybus_builder import build_ybus_sparse
 
 def main():
     num_buses, bus_types, V_init, theta_init, P_spec, Q_spec, line_data = get_ieee14_data()
-    Y_bus = build_ybus_sparse(num_buses, line_data, get_ieee14_bus_shunts())
+    shunts14 = get_ieee14_bus_shunts()
+    Y_bus = build_ybus_sparse(num_buses, line_data, shunts14)
 
     V_conv, theta_conv, history = solve_newton_raphson(
         V_init,
@@ -34,7 +37,7 @@ def main():
     plot_convergence(history, save_path="results/convergence_curve.png")
     plot_voltage_profile(V_conv, bus_types, save_path="results/voltage_profile.png")
 
-    p_stressed, q_stressed, q_lims = scale_ieee14_loads(1.25)
+    p_stressed, q_stressed, q_lims_stressed = scale_ieee14_loads(1.25)
     q_res = solve_nr_with_q_limits(
         V_init,
         theta_init,
@@ -42,9 +45,23 @@ def main():
         p_stressed,
         q_stressed,
         bus_types,
-        q_lims,
+        q_lims_stressed,
         tol=1e-6,
         sparse=True,
+    )
+
+    n1_rep = run_n1_contingency_analysis(
+        num_buses,
+        bus_types,
+        V_init,
+        theta_init,
+        P_spec,
+        Q_spec,
+        line_data,
+        shunts14,
+        q_limits=get_ieee14_q_limits(1.0),
+        v_min=0.94,
+        v_max=1.06,
     )
 
     n30, btypes30, v30_init, th30_init, p30, q30, lines30 = get_ieee30_data()
@@ -78,6 +95,11 @@ def main():
     print(
         f"IEEE 14 Q-Limits (1.25x load): {len(q_res.saturated_buses)} PV buses saturated "
         f"{q_res.saturated_buses} | min |V| = {np.min(q_res.V):.4f} p.u."
+    )
+    print(
+        f"IEEE 14 N-1 Security: {n1_rep.total_contingencies} contingencies | "
+        f"{n1_rep.secure_count} secure, {n1_rep.violated_count} violated, "
+        f"{n1_rep.islanded_count} islanded, {n1_rep.diverged_count} collapse"
     )
     sparsity30 = 100.0 * (1.0 - j30_sparse.nnz / (j30_sparse.shape[0] ** 2))
     print(

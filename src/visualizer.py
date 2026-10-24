@@ -77,3 +77,28 @@ def plot_jacobian_sparsity(jacobian, save_path="results/jacobian_sparsity.png"):
     plt.tight_layout()
     plt.savefig(save_path, dpi=300)
     plt.close()
+
+
+def plot_contingency_ranking(report, save_path="results/contingency_ranking.png", top_n=10):
+    """Plot post-contingency severity index ranking for converged N-1 outages."""
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    converged_cases = [c for c in report.ranked_cases if c.converged][: int(top_n)]
+    labels = [f"{c.from_bus}-{c.to_bus}" for c in converged_cases]
+    severities = [c.severity_index for c in converged_cases]
+    colors = ["#d62728" if c.status == "VIOLATION" else "#1f77b4" for c in converged_cases]
+
+    plt.figure(figsize=(8, 4.8))
+    if converged_cases:
+        plt.barh(labels[::-1], severities[::-1], color=colors[::-1], edgecolor="black", alpha=0.85)
+    plt.title(
+        "Top N-1 Contingency Severity Ranking (Converged Outages)",
+        fontsize=11,
+        fontweight="bold",
+    )
+    plt.xlabel("Composite Security Severity Index (PI)", fontsize=10)
+    plt.ylabel("Tripped Branch Corridor", fontsize=10)
+    plt.grid(axis="x", ls="--", alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300)
+    plt.close()
