@@ -1,0 +1,19 @@
+name: Solver Capability / Benchmark Proposal
+description: Propose a new IEEE test case, sparse solver optimization, or stability module
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Engineering Motivation
+      description: What power-systems study or numerical capability does this unlock?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Reference Benchmark / Acceptance Criteria
+      description: How should accuracy be verified (e.g., MATPOWER, finite differences, analytical solution)?
+    validations:
+      required: true
