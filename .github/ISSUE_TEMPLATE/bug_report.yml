@@ -1,0 +1,24 @@
+name: Numerical or Software Bug Report
+description: Report a convergence defect, matrix formulation mismatch, or runtime error
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Defect Summary
+      description: Describe the numerical mismatch or software exception observed.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal Reproducible Network / Steps
+      description: Provide bus/branch inputs or commands to reproduce the issue.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Python & NumPy/SciPy Versions
+      placeholder: "Python 3.12, NumPy 2.x"

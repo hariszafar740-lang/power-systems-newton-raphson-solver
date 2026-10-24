@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Power Systems Q&A and Numerical Discussions
+    url: https://github.com/hariszafar740-lang/power-systems-newton-raphson-solver/discussions
+    about: Ask questions about AC load flow formulations, Jacobian sparsity, or MATPOWER benchmarks.
