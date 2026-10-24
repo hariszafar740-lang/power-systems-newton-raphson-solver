@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from scipy.sparse import csc_matrix, issparse
 
 
 def plot_convergence(history, save_path="results/convergence_curve.png"):
@@ -51,6 +52,28 @@ def plot_voltage_profile(V, bus_types, save_path="results/voltage_profile.png"):
             fontsize=9,
         )
 
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300)
+    plt.close()
+
+
+def plot_jacobian_sparsity(jacobian, save_path="results/jacobian_sparsity.png"):
+    """Render the non-zero sparsity pattern of a dense or CSC Jacobian matrix."""
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+
+    j_csc = jacobian.tocsc() if issparse(jacobian) else csc_matrix(jacobian)
+    dim = j_csc.shape[0]
+    sparsity_pct = 100.0 * (1.0 - j_csc.nnz / (dim * dim)) if dim > 0 else 0.0
+
+    plt.figure(figsize=(6, 6))
+    plt.spy(j_csc, markersize=4, color="#1f77b4")
+    plt.title(
+        f"Jacobian Sparsity Pattern ({dim}x{dim}, nnz={j_csc.nnz}, {sparsity_pct:.1f}% zeros)",
+        fontsize=11,
+        fontweight="bold",
+    )
+    plt.xlabel("State Variable Column Index", fontsize=10)
+    plt.ylabel("Mismatch Equation Row Index", fontsize=10)
     plt.tight_layout()
     plt.savefig(save_path, dpi=300)
     plt.close()
