@@ -1,6 +1,42 @@
-# Tool configuration only: this repository is a script-based project and is
-# not installed as a distribution.  Python >= 3.10 is required (see README and
-# the CI matrix in .github/workflows/ci.yml).
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nr-powerflow-solver"
+version = "1.0.0"
+description = "Sparse CSC Newton-Raphson AC power-flow solver with PV Q-limit switching, N-1 contingency screening, and P-V voltage stability analysis."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Haris Zafar"}
+]
+keywords = [
+    "power-systems",
+    "load-flow",
+    "newton-raphson",
+    "sparse-matrix",
+    "contingency-analysis",
+    "voltage-stability",
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.4.0",
+]
+
+[project.scripts]
+nr-powerflow = "src.cli:main"
+
+[tool.setuptools]
+packages = ["src"]
 
 [tool.ruff]
 line-length = 100

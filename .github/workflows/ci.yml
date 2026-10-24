@@ -23,10 +23,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Install package and dev dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip "setuptools>=61.0"
           pip install -r requirements.txt ruff
+          pip install --no-build-isolation -e .
 
       - name: Lint with Ruff
         run: ruff check .
@@ -34,5 +35,8 @@ jobs:
       - name: Run test suite
         run: python -m pytest tests/ -v
 
-      - name: Smoke-run the IEEE 14-bus solver
-        run: python main.py
+      - name: Smoke-run main entry point and nr-powerflow CLI
+        run: |
+          python main.py
+          nr-powerflow --version
+          nr-powerflow solve --case ieee30 --format json > /dev/null
