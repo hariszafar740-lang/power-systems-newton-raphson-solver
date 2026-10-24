@@ -8,7 +8,7 @@ from src.q_limit_solver import solve_nr_with_q_limits
 from src.voltage_stability import trace_ieee14_pv_curves, trace_pv_nose_curve
 from src.ybus_builder import build_ybus, build_ybus_sparse
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     "__version__",

@@ -12,7 +12,13 @@ from src.jacobian_builder import build_jacobian_sparse
 from src.line_flow_calculator import calculate_line_flows
 from src.nr_solver import solve_newton_raphson
 from src.q_limit_solver import solve_nr_with_q_limits
-from src.visualizer import plot_convergence, plot_voltage_profile
+from src.visualizer import (
+    plot_contingency_ranking,
+    plot_convergence,
+    plot_jacobian_sparsity,
+    plot_pv_nose_curve,
+    plot_voltage_profile,
+)
 from src.voltage_stability import trace_ieee14_pv_curves
 from src.ybus_builder import build_ybus_sparse
 
@@ -64,7 +70,10 @@ def main():
         v_min=0.94,
         v_max=1.06,
     )
+    plot_contingency_ranking(n1_rep, save_path="results/contingency_ranking.png", top_n=10)
+
     pv_unc, pv_qlim = trace_ieee14_pv_curves(min_step=5e-3)
+    plot_pv_nose_curve(pv_unc, qlim_res=pv_qlim, bus=14, save_path="results/pv_nose_curve.png")
 
     n30, btypes30, v30_init, th30_init, p30, q30, lines30 = get_ieee30_data()
     y30_sparse = build_ybus_sparse(n30, lines30, get_ieee30_bus_shunts())
@@ -81,6 +90,7 @@ def main():
     )
     _, p30_loss, q30_loss = calculate_line_flows(v30_conv, th30_conv, lines30)
     j30_sparse = build_jacobian_sparse(v30_conv, th30_conv, y30_sparse, btypes30)
+    plot_jacobian_sparsity(j30_sparse, save_path="results/jacobian_sparsity.png")
 
     print("=" * 70)
     print("NEWTON-RAPHSON SPARSE CSC LOAD FLOW SOLVER (IEEE 14 & IEEE 30)")

@@ -7,7 +7,7 @@ from src.cli import main as cli_main
 
 
 def test_package_exposes_version_and_public_api():
-    assert src.__version__ == "1.0.0"
+    assert src.__version__ == "1.0.1"
     assert callable(src.solve_newton_raphson)
     assert callable(src.solve_nr_with_q_limits)
     assert callable(src.run_n1_contingency_analysis)

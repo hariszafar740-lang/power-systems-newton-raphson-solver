@@ -16,7 +16,7 @@ An industrial-grade Python numerical analysis package for **balanced AC power-fl
 ## What Makes This Solver Unique
 
 1. **Direct $O(\text{nnz})$ `scipy.sparse` CSC Engine (`src/ybus_builder.py`, `src/jacobian_builder.py`):**
-   Assembles complex bus-admittance ($Y_{bus}$) and reduced Jacobian ($J$) matrices directly from branch COO triplets into Compressed Sparse Column (`csc_matrix`) storage without allocating $N \times N$ dense arrays, achieving **86.5% Jacobian sparsity on IEEE 30-bus** and **>96% sparsity / ~15x speedup at 100+ buses**.
+   Assembles complex bus-admittance ($Y_{bus}$) and reduced Jacobian ($J$) matrices directly from branch COO triplets into Compressed Sparse Column (`csc_matrix`) storage without allocating $N \times N$ dense arrays, achieving **86.5% Jacobian sparsity on IEEE 30-bus** and **>96% sparsity / ~15–28x speedup at 100–160 buses**.
 2. **PV Generator $Q_{\min} / Q_{\max}$ Reactive-Limit Switching (`src/q_limit_solver.py`):**
    Enforces generator reactive capability bounds (`most_severe` or simultaneous `PV -> PQ` conversion with `PQ -> PV` voltage backoff reversion), accounting for local reactive demand $Q_d$ at generator buses and matching `pandapower` (`enforce_q_lims=True`) to **$< 10^{-6}\text{ p.u.}$**
 3. **Coupled $N-1$ Contingency Security Screening (`src/contingency_analyzer.py`):**
@@ -42,16 +42,23 @@ $$\begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix} = \begin{bmatrix} J_{11} & 
 
 ## Simulation Artifacts
 
-### Convergence Trajectory & Bus Voltage Profile (IEEE 14-Bus)
+### 1. Quadratic Convergence & Bus Voltage Profile (IEEE 14-Bus)
 ![Convergence Curve](results/convergence_curve.png)
 ![Voltage Profile](results/voltage_profile.png)
+
+### 2. Voltage Collapse $P\text{--}V$ Nose Curve & $N-1$ Contingency Security Ranking (IEEE 14-Bus)
+![P-V Nose Curve](results/pv_nose_curve.png)
+![N-1 Contingency Ranking](results/contingency_ranking.png)
+
+### 3. Reduced Sparse CSC Jacobian Structure (IEEE 30-Bus, 86.5% Zeros)
+![Jacobian Sparsity Pattern](results/jacobian_sparsity.png)
 
 ---
 
 ## Validation Benchmarks
 
 * **IEEE 14-Bus (`src/ieee14_data.py`):** Pinned to MATPOWER `data/case14.m` (100 MVA base). Agrees with `pandapower` 3.x reference to **$< 5 \times 10^{-7}\text{ p.u.}$** on voltages ($P_{loss} = 0.1339\text{ p.u.}$, $Q_{loss} = 0.3012\text{ p.u.}$), and reproduces `enforce_q_lims=True` stressed states (`1.15x` partial & `1.25x` cascade saturation) to **$< 10^{-6}\text{ p.u.}$**
-* **IEEE 30-Bus (`src/ieee30_data.py`):** Pinned to MATPOWER `data/case_ieee30.m` (30 buses, 41 branches, 4 off-nominal tap transformers, 2 shunt capacitor banks). Converges quadratically in 4 iterations ($P_{loss} = 0.1756\text{ p.u.}$, $Q_{loss} = 0.3298\text{ p.u.}$) within **$< 5 \times 10^{-6}\text{ p.u.}$** of reference.
+* **IEEE 30-Bus (`src/ieee30_data.py`):** Pinned to MATPOWER `data/case_ieee30.m` (30 buses, 41 branches, 4 off-nominal tap transformers, 2 shunt capacitor banks). Converges quadratically in 3 iterations ($P_{loss} = 0.1756\text{ p.u.}$, $Q_{loss} = 0.3298\text{ p.u.}$) within **$< 5 \times 10^{-6}\text{ p.u.}$** of reference.
 * **Analytical Two-Bus Bifurcation (`tests/test_voltage_stability.py`):** Reproduces closed-form lossless nose-point transfer $P_{\max} = V_1^2 / (2X)$ and $V_{\text{crit}} = V_1 / \sqrt{2}$ within $0.05\%$.
 
 ---
@@ -62,7 +69,7 @@ $$\begin{bmatrix} \Delta P \\ \Delta Q \end{bmatrix} = \begin{bmatrix} J_{11} & 
 python -m pip install -r requirements.txt
 python -m pip install -e .
 
-# Run full benchmark demonstration
+# Run full benchmark demonstration & regenerate diagnostic figures
 python main.py
 
 # Engineering CLI subcommands
@@ -88,8 +95,9 @@ ruff check .
 ├── main.py                      # Demonstration entry point (IEEE 14 & IEEE 30)
 ├── pyproject.toml               # PEP 621 package, CLI script, Ruff & pytest config
 ├── CITATION.cff                 # Academic BibTeX / APA citation metadata
+├── results/                     # High-DPI benchmark diagnostic figures (5 PNGs)
 ├── src/
-│   ├── __init__.py              # Public package API (v1.0.0)
+│   ├── __init__.py              # Public package API (v1.0.1)
 │   ├── bus_data.py              # 3-bus test network specification
 │   ├── ieee14_data.py           # MATPOWER case14 data + Q-capability curves
 │   ├── ieee30_data.py           # MATPOWER case_ieee30 benchmark + shunts/Q-limits
