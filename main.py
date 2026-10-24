@@ -13,6 +13,7 @@ from src.line_flow_calculator import calculate_line_flows
 from src.nr_solver import solve_newton_raphson
 from src.q_limit_solver import solve_nr_with_q_limits
 from src.visualizer import plot_convergence, plot_voltage_profile
+from src.voltage_stability import trace_ieee14_pv_curves
 from src.ybus_builder import build_ybus_sparse
 
 
@@ -63,6 +64,7 @@ def main():
         v_min=0.94,
         v_max=1.06,
     )
+    pv_unc, pv_qlim = trace_ieee14_pv_curves(min_step=5e-3)
 
     n30, btypes30, v30_init, th30_init, p30, q30, lines30 = get_ieee30_data()
     y30_sparse = build_ybus_sparse(n30, lines30, get_ieee30_bus_shunts())
@@ -100,6 +102,11 @@ def main():
         f"IEEE 14 N-1 Security: {n1_rep.total_contingencies} contingencies | "
         f"{n1_rep.secure_count} secure, {n1_rep.violated_count} violated, "
         f"{n1_rep.islanded_count} islanded, {n1_rep.diverged_count} collapse"
+    )
+    print(
+        f"IEEE 14 Voltage Collapse Margin: Q-limited λ_max = {pv_qlim.lambda_max:.3f}x "
+        f"({pv_qlim.max_load_mw:.1f} MW, weakest Bus {pv_qlim.weakest_bus}) vs "
+        f"Unconstrained {pv_unc.lambda_max:.3f}x"
     )
     sparsity30 = 100.0 * (1.0 - j30_sparse.nnz / (j30_sparse.shape[0] ** 2))
     print(
