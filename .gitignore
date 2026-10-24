@@ -8,6 +8,7 @@ nr_env/
 *.egg-info/
 dist/
 build/
+site/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
