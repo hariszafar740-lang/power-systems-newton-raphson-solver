@@ -28,7 +28,7 @@ def test_build_dashboard_site_creates_html_and_all_visual_assets(tmp_path: Path)
 
     html = index_path.read_text(encoding="utf-8")
     assert "Power Systems Sparse Newton-Raphson" in html
-    match = re.search(r"const DATA = (\{.*\});", html)
+    match = re.search(r"const DATA = ({.*});", html)
     assert match is not None
     payload = json.loads(match.group(1))
     summary = payload["contingency_summary"]

@@ -137,7 +137,7 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
         "version": __version__,
         "cases": {
             "ieee14_base": {
-                "title": "IEEE 14-Bus — Nominal Base Case (1.00x Load)",
+                "title": "IEEE 14-Bus, Nominal Base Case (1.00x Load)",
                 "buses": n14,
                 "branches": len(lines14),
                 "iterations": len(hist14) - 1,
@@ -149,7 +149,7 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
                 "rows": _bus_rows(v14_base, th14_base, bt14),
             },
             "ieee14_stressed": {
-                "title": "IEEE 14-Bus — Heavy Load (1.25x) + Q-Limits Enforced",
+                "title": "IEEE 14-Bus, Heavy Load (1.25x) + Q-Limits Enforced",
                 "buses": n14,
                 "branches": len(lines14),
                 "iterations": len(q14_res.history) - 1,
@@ -163,7 +163,7 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
                 ),
             },
             "ieee30_base": {
-                "title": "IEEE 30-Bus — Nominal Base Case (1.00x Load)",
+                "title": "IEEE 30-Bus, Nominal Base Case (1.00x Load)",
                 "buses": n30,
                 "branches": len(lines30),
                 "iterations": len(hist30) - 1,
@@ -175,7 +175,7 @@ def build_dashboard_site(out_dir: str | Path = "site") -> Path:
                 "rows": _bus_rows(v30_base, th30_base, bt30),
             },
             "ieee30_stressed": {
-                "title": "IEEE 30-Bus — Stressed Load (1.35x) + Q-Limits Enforced",
+                "title": "IEEE 30-Bus, Stressed Load (1.35x) + Q-Limits Enforced",
                 "buses": n30,
                 "branches": len(lines30),
                 "iterations": len(q30_res.history) - 1,
