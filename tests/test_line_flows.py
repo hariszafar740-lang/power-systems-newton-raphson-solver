@@ -1,8 +1,8 @@
 import numpy as np
 
-from src.line_flow_calculator import calculate_line_flows
-from src.mismatch_calculator import calculate_power_injections
-from src.ybus_builder import build_ybus
+from nr_powerflow.line_flow_calculator import calculate_line_flows
+from nr_powerflow.mismatch_calculator import calculate_power_injections
+from nr_powerflow.ybus_builder import build_ybus
 
 
 def test_line_flows_match_ybus_power_injections_with_transformer_tap():

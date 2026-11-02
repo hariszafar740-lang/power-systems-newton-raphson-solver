@@ -5,16 +5,16 @@ import numpy as np
 import pytest
 from scipy.sparse import csc_matrix, issparse
 
-from src.bus_data import get_3bus_data
-from src.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
-from src.ieee30_data import get_ieee30_bus_shunts, get_ieee30_data
-from src.jacobian_builder import build_jacobian, build_jacobian_sparse
-from src.line_flow_calculator import calculate_line_flows
-from src.mismatch_calculator import calculate_power_injections
-from src.nr_solver import solve_newton_raphson
-from src.sparse_benchmark import benchmark_dense_vs_sparse, build_synthetic_grid
-from src.visualizer import plot_jacobian_sparsity
-from src.ybus_builder import build_ybus, build_ybus_sparse
+from nr_powerflow.bus_data import get_3bus_data
+from nr_powerflow.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
+from nr_powerflow.ieee30_data import get_ieee30_bus_shunts, get_ieee30_data
+from nr_powerflow.jacobian_builder import build_jacobian, build_jacobian_sparse
+from nr_powerflow.line_flow_calculator import calculate_line_flows
+from nr_powerflow.mismatch_calculator import calculate_power_injections
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.sparse_benchmark import benchmark_dense_vs_sparse, build_synthetic_grid
+from nr_powerflow.visualizer import plot_jacobian_sparsity
+from nr_powerflow.ybus_builder import build_ybus, build_ybus_sparse
 
 IEEE30_REF_VM_PU = np.array(
     [

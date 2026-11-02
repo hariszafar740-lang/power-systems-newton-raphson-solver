@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nr-powerflow-solver"
-version = "1.0.1"
+version = "1.0.2"
 description = "Sparse CSC Newton-Raphson AC power-flow solver with PV Q-limit switching, N-1 contingency screening, and P-V voltage stability analysis."
 readme = "README.md"
 license = "MIT"
@@ -40,10 +40,10 @@ Issues = "https://github.com/hariszafar740-lang/power-systems-newton-raphson-sol
 Changelog = "https://github.com/hariszafar740-lang/power-systems-newton-raphson-solver/releases"
 
 [project.scripts]
-nr-powerflow = "src.cli:main"
+nr-powerflow = "nr_powerflow.cli:main"
 
 [tool.setuptools]
-packages = ["src"]
+packages = ["nr_powerflow"]
 
 [tool.ruff]
 line-length = 100

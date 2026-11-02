@@ -2,7 +2,7 @@
 
 Data reference
 --------------
-The network data in ``src/ieee14_data.py`` is pinned to MATPOWER's
+The network data in ``nr_powerflow/ieee14_data.py`` is pinned to MATPOWER's
 ``case14.m`` (100 MVA base), file ``data/case14.m`` of
 https://github.com/MATPOWER/matpower at commit
 ``2e0ef79a6c4526858ee923491d92781ad4507fb7`` (2026-08-04).  The identical
@@ -32,11 +32,11 @@ point differences across numpy versions:
 import numpy as np
 import pytest
 
-from src.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
-from src.line_flow_calculator import calculate_line_flows
-from src.mismatch_calculator import calculate_power_injections
-from src.nr_solver import solve_newton_raphson
-from src.ybus_builder import build_ybus
+from nr_powerflow.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
+from nr_powerflow.line_flow_calculator import calculate_line_flows
+from nr_powerflow.mismatch_calculator import calculate_power_injections
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.ybus_builder import build_ybus
 
 # MATPOWER case14 branch table: (from, to, r, x, total b, tap ratio).
 # A tap ratio of 1.0 marks a plain transmission line (MATPOWER stores 0

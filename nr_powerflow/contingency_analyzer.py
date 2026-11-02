@@ -3,10 +3,10 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from src.line_flow_calculator import calculate_line_flows
-from src.nr_solver import solve_newton_raphson
-from src.q_limit_solver import solve_nr_with_q_limits
-from src.ybus_builder import build_ybus_sparse
+from nr_powerflow.line_flow_calculator import calculate_line_flows
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.q_limit_solver import solve_nr_with_q_limits
+from nr_powerflow.ybus_builder import build_ybus_sparse
 
 
 @dataclass

@@ -1,26 +1,26 @@
 import numpy as np
 
-from src.contingency_analyzer import run_n1_contingency_analysis
-from src.ieee14_data import (
+from nr_powerflow.contingency_analyzer import run_n1_contingency_analysis
+from nr_powerflow.ieee14_data import (
     get_ieee14_bus_shunts,
     get_ieee14_data,
     get_ieee14_q_limits,
     scale_ieee14_loads,
 )
-from src.ieee30_data import get_ieee30_bus_shunts, get_ieee30_data
-from src.jacobian_builder import build_jacobian_sparse
-from src.line_flow_calculator import calculate_line_flows
-from src.nr_solver import solve_newton_raphson
-from src.q_limit_solver import solve_nr_with_q_limits
-from src.visualizer import (
+from nr_powerflow.ieee30_data import get_ieee30_bus_shunts, get_ieee30_data
+from nr_powerflow.jacobian_builder import build_jacobian_sparse
+from nr_powerflow.line_flow_calculator import calculate_line_flows
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.q_limit_solver import solve_nr_with_q_limits
+from nr_powerflow.visualizer import (
     plot_contingency_ranking,
     plot_convergence,
     plot_jacobian_sparsity,
     plot_pv_nose_curve,
     plot_voltage_profile,
 )
-from src.voltage_stability import trace_ieee14_pv_curves
-from src.ybus_builder import build_ybus_sparse
+from nr_powerflow.voltage_stability import trace_ieee14_pv_curves
+from nr_powerflow.ybus_builder import build_ybus_sparse
 
 
 def main():

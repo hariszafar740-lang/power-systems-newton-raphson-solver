@@ -4,21 +4,21 @@ limit enforcement (Q_min / Q_max switching)."""
 import numpy as np
 import pytest
 
-from src.bus_data import get_3bus_data
-from src.ieee14_data import (
+from nr_powerflow.bus_data import get_3bus_data
+from nr_powerflow.ieee14_data import (
     get_ieee14_bus_shunts,
     get_ieee14_data,
     get_ieee14_q_limits,
     scale_ieee14_loads,
 )
-from src.ieee30_data import (
+from nr_powerflow.ieee30_data import (
     get_ieee30_bus_shunts,
     get_ieee30_data,
     scale_ieee30_loads,
 )
-from src.nr_solver import solve_newton_raphson
-from src.q_limit_solver import solve_nr_with_q_limits
-from src.ybus_builder import build_ybus_sparse
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.q_limit_solver import solve_nr_with_q_limits
+from nr_powerflow.ybus_builder import build_ybus_sparse
 
 CASE14_115X_VM_REF = np.array(
     [

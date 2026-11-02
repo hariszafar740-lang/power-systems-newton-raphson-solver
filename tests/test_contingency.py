@@ -2,18 +2,18 @@
 
 import pytest
 
-from src.contingency_analyzer import (
+from nr_powerflow.contingency_analyzer import (
     find_islanded_buses,
     format_contingency_table,
     run_n1_contingency_analysis,
 )
-from src.ieee14_data import (
+from nr_powerflow.ieee14_data import (
     get_ieee14_bus_shunts,
     get_ieee14_data,
     get_ieee14_q_limits,
 )
-from src.ieee30_data import get_ieee30_data
-from src.visualizer import plot_contingency_ranking
+from nr_powerflow.ieee30_data import get_ieee30_data
+from nr_powerflow.visualizer import plot_contingency_ranking
 
 
 def test_topological_islanding_detection_on_ieee14_and_ieee30():

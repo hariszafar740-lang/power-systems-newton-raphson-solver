@@ -4,8 +4,8 @@ import numpy as np
 from scipy.sparse import csc_matrix, issparse
 from scipy.sparse.linalg import MatrixRankWarning, spsolve
 
-from src.jacobian_builder import build_jacobian, build_jacobian_sparse
-from src.mismatch_calculator import calculate_power_mismatches
+from nr_powerflow.jacobian_builder import build_jacobian, build_jacobian_sparse
+from nr_powerflow.mismatch_calculator import calculate_power_mismatches
 
 
 def solve_newton_raphson(

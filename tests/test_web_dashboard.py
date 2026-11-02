@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-from src.web_dashboard import build_dashboard_site, main
+from nr_powerflow.web_dashboard import build_dashboard_site, main
 
 
 def test_build_dashboard_site_creates_html_and_all_visual_assets(tmp_path: Path):

@@ -19,19 +19,19 @@ I benchmark against pandapower rather than a remembered value, and the residual 
 
 ## What Makes This Solver Unique
 
-1. Direct O(nnz) `scipy.sparse` CSC Engine (`src/ybus_builder.py`, `src/jacobian_builder.py`):
+1. Direct O(nnz) `scipy.sparse` CSC Engine (`nr_powerflow/ybus_builder.py`, `nr_powerflow/jacobian_builder.py`):
 Assembles complex bus-admittance (Y(bus)) and reduced Jacobian (J) matrices directly from branch COO triplets into Compressed Sparse Column (`csc_matrix`) storage without allocating N ×N dense arrays.
 Achieving 86.5% Jacobian sparsity on IEEE 30-bus and >96% sparsity / ~15–28x speedup at 100–160 buses.
-2. PV Generator Q(min) / Q(max) Reactive-Limit Switching (`src/q_limit_solver.py`):
+2. PV Generator Q(min) / Q(max) Reactive-Limit Switching (`nr_powerflow/q_limit_solver.py`):
 Enforces generator reactive capability bounds (`most_severe` or simultaneous `PV -> PQ` conversion with `PQ -> PV` voltage backoff reversion).
 Accounting for local reactive demand Q(d) at generator buses and matching `pandapower` (`enforce_q_lims=True`) to < 10^(-6) p.u.
-3. Coupled N-1 Contingency Security Screening (`src/contingency_analyzer.py`):
+3. Coupled N-1 Contingency Security Screening (`nr_powerflow/contingency_analyzer.py`):
 Combines BFS topological islanding detection with warm-started sparse AC contingency solves, branch MVA thermal overload checks, and composite Performance Index (PI) ranking.
 Demonstrating how Corridor `1-2` outage on IEEE 14-bus triggers reactive exhaustion collapse when physical Q-limits are enforced.
-4. Saddle-Node Bifurcation P--V Nose-Curve Analyzer (`src/voltage_stability.py`):
+4. Saddle-Node Bifurcation P--V Nose-Curve Analyzer (`nr_powerflow/voltage_stability.py`):
 Adaptive binary step-halving continuation tracer tracking smallest Jacobian singular value (σ(min)(J) →0) and PV Q-saturation kinks.
 Proving IEEE 14-bus loadability contracts from 4.00× (1036 MW) unconstrained to 1.76× (455 MW) under MATPOWER Q-limits.
-5. Installable PEP 621 Package & `nr-powerflow` CLI (`src/cli.py`):
+5. Installable PEP 621 Package & `nr-powerflow` CLI (`nr_powerflow/cli.py`):
 Ships a clean command-line interface (`solve`, `contingency`, `pv-curve`, `benchmark`) outputting human-readable Markdown tables or structured JSON.
 
 ---
@@ -72,10 +72,10 @@ J_21, J_22] [Δθ;
 
 ## Validation Benchmarks
 
-* IEEE 14-Bus (`src/ieee14_data.py`): Pinned to MATPOWER `data/case14.m` (100 MVA base).
+* IEEE 14-Bus (`nr_powerflow/ieee14_data.py`): Pinned to MATPOWER `data/case14.m` (100 MVA base).
 * Agrees with `pandapower` 3.x reference to < 5 ×10^(-7) p.u. on voltages (P(loss) = 0.1339 p.u.
 * Q(loss) = 0.3012 p.u.), and reproduces `enforce_q_lims=True` stressed states (`1.15x` partial & `1.25x` cascade saturation) to < 10^(-6) p.u.
-* IEEE 30-Bus (`src/ieee30_data.py`): Pinned to MATPOWER `data/case_ieee30.m` (30 buses, 41 branches, 4 off-nominal tap transformers, 2 shunt capacitor banks).
+* IEEE 30-Bus (`nr_powerflow/ieee30_data.py`): Pinned to MATPOWER `data/case_ieee30.m` (30 buses, 41 branches, 4 off-nominal tap transformers, 2 shunt capacitor banks).
 * Converges quadratically in 3 iterations (P(loss) = 0.1756 p.u., Q(loss) = 0.3298 p.u.) within < 5 ×10^(-6) p.u. of reference.
 * Analytical Two-Bus Bifurcation (`tests/test_voltage_stability.py`): Reproduces closed-form lossless nose-point transfer P(max) = V(1)^2 / (2X) and V(crit) = V(1) / √(2) within 0.05%.
 
@@ -111,7 +111,7 @@ python -m pytest tests/ -v ruff check .
 ├── pyproject.toml # PEP 621 package, CLI script, Ruff & pytest config
 ├── CITATION.cff # Academic BibTeX / APA citation metadata
 ├── results/ # High-DPI benchmark diagnostic figures (5 PNGs)
-├── src/
+├── nr_powerflow/
 │ ├── __init__.py # Public package API (v1.0.1)
 │ ├── bus_data.py # 3-bus test network specification
 │ ├── ieee14_data.py # MATPOWER case14 data + Q-capability curves

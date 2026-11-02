@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from src.jacobian_builder import build_jacobian_sparse
-from src.nr_solver import solve_newton_raphson
-from src.q_limit_solver import solve_nr_with_q_limits
-from src.ybus_builder import build_ybus_sparse
+from nr_powerflow.jacobian_builder import build_jacobian_sparse
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.q_limit_solver import solve_nr_with_q_limits
+from nr_powerflow.ybus_builder import build_ybus_sparse
 
 
 @dataclass
@@ -179,7 +179,7 @@ def trace_pv_nose_curve(
 
 def trace_ieee14_pv_curves(min_step=5e-3):
     """Convenience runner returning ``(unconstrained, q_limited)`` IEEE 14 P-V curves."""
-    from src.ieee14_data import (
+    from nr_powerflow.ieee14_data import (
         get_ieee14_bus_shunts,
         get_ieee14_data,
         get_ieee14_q_limits,

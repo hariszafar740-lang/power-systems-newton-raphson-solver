@@ -4,8 +4,8 @@ saddle-node bifurcation loadability margins."""
 import numpy as np
 import pytest
 
-from src.visualizer import plot_pv_nose_curve
-from src.voltage_stability import trace_ieee14_pv_curves, trace_pv_nose_curve
+from nr_powerflow.visualizer import plot_pv_nose_curve
+from nr_powerflow.voltage_stability import trace_ieee14_pv_curves, trace_pv_nose_curve
 
 
 def test_two_bus_lossless_line_matches_exact_analytical_nose_point():

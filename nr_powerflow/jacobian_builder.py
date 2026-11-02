@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.sparse import coo_matrix, csc_matrix, issparse
 
-from src.mismatch_calculator import calculate_power_injections
+from nr_powerflow.mismatch_calculator import calculate_power_injections
 
 
 def build_jacobian_sparse(V, theta, Y_bus, bus_types):

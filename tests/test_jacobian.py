@@ -1,10 +1,10 @@
 import numpy as np
 
-from src.bus_data import get_3bus_data
-from src.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
-from src.jacobian_builder import build_jacobian
-from src.mismatch_calculator import calculate_power_injections
-from src.ybus_builder import build_ybus
+from nr_powerflow.bus_data import get_3bus_data
+from nr_powerflow.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
+from nr_powerflow.jacobian_builder import build_jacobian
+from nr_powerflow.mismatch_calculator import calculate_power_injections
+from nr_powerflow.ybus_builder import build_ybus
 
 
 def test_jacobian_matches_finite_difference_power_derivatives():

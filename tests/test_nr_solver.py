@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from src.bus_data import get_3bus_data
-from src.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
-from src.nr_solver import solve_newton_raphson
-from src.ybus_builder import build_ybus
+from nr_powerflow.bus_data import get_3bus_data
+from nr_powerflow.ieee14_data import get_ieee14_bus_shunts, get_ieee14_data
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.ybus_builder import build_ybus
 
 THREE_BUS_LINES = [
     {"from_bus": 1, "to_bus": 2, "r": 0.02, "x": 0.06, "b": 0.06},

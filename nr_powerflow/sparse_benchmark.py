@@ -2,9 +2,9 @@ import time
 
 import numpy as np
 
-from src.jacobian_builder import build_jacobian_sparse
-from src.nr_solver import solve_newton_raphson
-from src.ybus_builder import build_ybus, build_ybus_sparse
+from nr_powerflow.jacobian_builder import build_jacobian_sparse
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.ybus_builder import build_ybus, build_ybus_sparse
 
 
 def build_synthetic_grid(num_buses):

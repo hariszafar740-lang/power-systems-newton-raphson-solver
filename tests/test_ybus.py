@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from src.ybus_builder import build_ybus
+from nr_powerflow.ybus_builder import build_ybus
 
 
 def test_ybus_symmetry_for_transmission_lines():

@@ -1,17 +1,18 @@
 """End-to-end verification tests for the ``nr-powerflow`` CLI and package API."""
 
 import json
+from importlib import metadata
 
-import src
-from src.cli import main as cli_main
+import nr_powerflow
+from nr_powerflow.cli import main as cli_main
 
 
 def test_package_exposes_version_and_public_api():
-    assert src.__version__ == "1.0.1"
-    assert callable(src.solve_newton_raphson)
-    assert callable(src.solve_nr_with_q_limits)
-    assert callable(src.run_n1_contingency_analysis)
-    assert callable(src.trace_pv_nose_curve)
+    assert nr_powerflow.__version__ == metadata.version("nr-powerflow-solver")
+    assert callable(nr_powerflow.solve_newton_raphson)
+    assert callable(nr_powerflow.solve_nr_with_q_limits)
+    assert callable(nr_powerflow.run_n1_contingency_analysis)
+    assert callable(nr_powerflow.trace_pv_nose_curve)
 
 
 def test_cli_solve_json_and_plot_export(capsys, tmp_path):

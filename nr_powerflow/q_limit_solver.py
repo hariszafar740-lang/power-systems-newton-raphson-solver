@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from src.mismatch_calculator import calculate_power_injections
-from src.nr_solver import solve_newton_raphson
-from src.ybus_builder import build_ybus_sparse
+from nr_powerflow.mismatch_calculator import calculate_power_injections
+from nr_powerflow.nr_solver import solve_newton_raphson
+from nr_powerflow.ybus_builder import build_ybus_sparse
 
 
 @dataclass
