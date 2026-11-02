@@ -5,6 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/hariszafar740-lang/power-systems-newton-raphson-solver)](https://github.com/hariszafar740-lang/power-systems-newton-raphson-solver/releases)
 ![Python Version](https://img.shields.io/badge/python-3.10%20--%203.13-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+[![PyPI](https://img.shields.io/pypi/v/nr-powerflow-solver?color=blue)](https://pypi.org/project/nr-powerflow-solver/)
 
 A Python numerical analysis package for **balanced AC power-flow calculation, PV generator reactive-capability enforcement, automated N-1 contingency security screening, and saddle-node bifurcation P--V voltage stability analysis**.
 Validated to reference precision against MATPOWER `case14`, MATPOWER `case_ieee30`, pandapower, and closed-form analytical power-transfer equations.
