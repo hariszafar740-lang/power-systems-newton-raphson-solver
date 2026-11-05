@@ -95,7 +95,7 @@ python main.py
 nr-powerflow solve --case ieee14 --load-mult 1.25 --enforce-q-limits nr-powerflow solve --case ieee30 --format json nr-powerflow contingency --case ieee14 --enforce-q-limits --top 8 nr-powerflow pv-curve --bus 14 --plot results/pv_nose_curve.png nr-powerflow benchmark --sizes 14 30 80 160
 
 # Build static interactive web dashboard locally
-python -m src.web_dashboard --out-dir site
+python -m nr_powerflow.web_dashboard --out-dir site
 
 # Run full 72-test verification suite + Ruff linter
 python -m pytest tests/ -v ruff check .

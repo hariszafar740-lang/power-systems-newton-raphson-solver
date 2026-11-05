@@ -36,7 +36,7 @@ jobs:
           pip install --no-build-isolation -e .
 
       - name: Build static interactive dashboard
-        run: python -m src.web_dashboard --out-dir site
+        run: python -m nr_powerflow.web_dashboard --out-dir site
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4

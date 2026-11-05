@@ -6,7 +6,7 @@ def calculate_line_flows(V, theta, line_data):
 
     ``b`` in each branch is total line charging susceptance.  An optional
     positive, real ``tap`` ratio is placed on the from-bus side, matching the
-    convention used by :func:`src.ybus_builder.build_ybus`.
+    convention used by :func:`nr_powerflow.ybus_builder.build_ybus`.
     """
     V = np.asarray(V, dtype=float)
     theta = np.asarray(theta, dtype=float)
