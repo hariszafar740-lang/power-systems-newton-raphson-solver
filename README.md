@@ -17,6 +17,18 @@ I benchmark against pandapower rather than a remembered value, and the residual 
 
 ---
 
+## Install
+
+```bash
+pip install nr-powerflow-solver
+```
+
+Then `nr-powerflow --help`.
+
+The headline number below is re-checked against the published wheel on every
+release by [energy-systems-benchmarks](https://github.com/hariszafar740-lang/energy-systems-benchmarks), and what that check does not cover
+is written up in [the engineering note](https://github.com/hariszafar740-lang/hariszafar740-lang/blob/main/notes/five-packages.md).
+
 ## What Makes This Solver Unique
 
 1. Direct O(nnz) `scipy.sparse` CSC Engine (`nr_powerflow/ybus_builder.py`, `nr_powerflow/jacobian_builder.py`):
